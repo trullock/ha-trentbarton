@@ -68,25 +68,20 @@ async def async_setup_platform(
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
-        # Name of the data. For logging purposes.
-        name="buses",
-        update_method=async_update_data,
-        # Polling interval. Will only be polled if there are subscribers.
-        update_interval=timedelta(seconds=60),
+        name = "buses",
+        update_method = async_update_data,
+        update_interval = timedelta(seconds=60),
     )
 
     coordinator.async_add_listener(update_entities)
 
     await coordinator.async_config_entry_first_refresh()
 
-    i = 0
-    for bus in coordinator.data:
-        if i == num_buses:
-            break
+    # Deliberately dont use initial bus data so the sensors get alphabetically ordered default names - so the default card gets them set up in the right order
+    for i in range(0, num_buses - 1):
         sensor = BusSensor(coordinator, i)
-        sensor.setValues(bus)
         sensorEntities.append(sensor)
-        i += 1
+
     async_add_entities(sensorEntities)
 
 
@@ -100,14 +95,15 @@ class BusSensor(CoordinatorEntity, SensorEntity):
         self._data = {}
         self.entity_id = f"trentbarton.upcoming_bus_{index}"
         self._bus = null
+        self._index = index
 
     @property
     def name(self):
-        return self._bus.name
+        return self._bus.name if self._bus == null else f"Bus {self._index}"
 
     @property
     def native_value(self):
-        return self._bus.due
+        return self._bus.due if self._bus == null else 0
 
-    def setValues(self, bus: Bus):
+    def setBus(self, bus: Bus):
         self._bus = bus
