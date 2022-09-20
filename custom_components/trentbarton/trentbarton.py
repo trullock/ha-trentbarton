@@ -37,7 +37,8 @@ class Bus:
         try:
             return int(self.data["dueIn"][:-4])
         except Exception:
-            return self.data["dueIn"]
+            # TODO: parse this properly, its usually a time, eg. 22:45
+            return -1  # self.data["dueIn"]
 
     @property
     def time(self):

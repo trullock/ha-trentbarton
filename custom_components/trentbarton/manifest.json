@@ -1,13 +1,11 @@
 {
-	"domain": "trentbarton",
-	"name": "Trent-Barton Live Bus Times",
-	"documentation": "",
-	"codeowners": [
-		"@trullock"
-	],
-	"iot_class": "cloud_polling",
-	"version": "1.0.0",
-	"requirements": [],
-	"config_flow": false,
-	"dependencies": []
+    "domain": "trentbarton",
+    "name": "Trent-Barton Live Bus Times",
+    "documentation": "",
+    "codeowners": ["@trullock"],
+    "iot_class": "cloud_polling",
+    "version": "1.0.1",
+    "requirements": [],
+    "config_flow": false,
+    "dependencies": []
 }
