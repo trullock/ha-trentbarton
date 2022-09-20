@@ -59,18 +59,18 @@ async def async_setup_platform(
         i = 0
         for entity in sensorEntities:
             if len(coordinator.data) > i:
-                entity.setValues(coordinator.data[i])
+                entity.set_bus(coordinator.data[i])
             else:
-                entity.setValues(NullBus())
+                entity.set_bus(NullBus())
             entity.async_write_ha_state()
             i += 1
 
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
-        name = "buses",
-        update_method = async_update_data,
-        update_interval = timedelta(seconds=60),
+        name="buses",
+        update_method=async_update_data,
+        update_interval=timedelta(seconds=60),
     )
 
     coordinator.async_add_listener(update_entities)
@@ -78,7 +78,7 @@ async def async_setup_platform(
     await coordinator.async_config_entry_first_refresh()
 
     # Deliberately dont use initial bus data so the sensors get alphabetically ordered default names - so the default card gets them set up in the right order
-    for i in range(0, num_buses - 1):
+    for i in range(0, num_buses):
         sensor = BusSensor(coordinator, i)
         sensorEntities.append(sensor)
 
@@ -99,11 +99,11 @@ class BusSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def name(self):
-        return self._bus.name if self._bus == null else f"Bus {self._index}"
+        return self._bus.name if self._bus != null else f"Bus {self._index} loading..."
 
     @property
     def native_value(self):
-        return self._bus.due if self._bus == null else 0
+        return self._bus.due if self._bus != null else 0
 
-    def setBus(self, bus: Bus):
+    def set_bus(self, bus: Bus):
         self._bus = bus

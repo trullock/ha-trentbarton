@@ -36,7 +36,7 @@ class Bus:
 
         try:
             return int(self.data["dueIn"][:-4])
-        except Exception as e:
+        except Exception:
             return self.data["dueIn"]
 
     @property
@@ -68,7 +68,7 @@ class NullBus(Bus):
         return "00:00"
 
     def __str__(self):
-        return f"Null bus"
+        return "Null bus"
 
 
 class BusStop:
@@ -86,7 +86,13 @@ class BusStop:
             )
             data = await response.read()
         decoded = json.loads(data)
-        return [Bus(data) for data in decoded[0]["result"]]
+        buses = [Bus(data) for data in decoded[0]["result"]]
+
+        def sort_buses(bus):
+            return bus.due
+
+        buses.sort(key=sort_buses)
+        return buses
 
     async def get_position(self):
         """Gets the position of the bus stop in longitude and latitude"""
