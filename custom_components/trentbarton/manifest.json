@@ -4,7 +4,7 @@
     "documentation": "",
     "codeowners": ["@trullock"],
     "iot_class": "cloud_polling",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "requirements": [],
     "config_flow": false,
     "dependencies": []
