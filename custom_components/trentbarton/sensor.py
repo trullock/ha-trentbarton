@@ -6,7 +6,6 @@ import logging
 
 from sqlalchemy import null
 from homeassistant.components.sensor import SensorEntity
-from homeassistant.const import TEMP_CELSIUS
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.typing import ConfigType, DiscoveryInfoType
@@ -14,7 +13,6 @@ from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
     DataUpdateCoordinator,
 )
-from homeassistant.const import TIME_MINUTES
 
 from .const import *
 from . import DOMAIN
@@ -88,7 +86,7 @@ async def async_setup_platform(
 class BusSensor(CoordinatorEntity, SensorEntity):
 
     _attr_icon = "mdi:bus"
-    _attr_native_unit_of_measurement = TIME_MINUTES
+    _attr_native_unit_of_measurement = "min"
 
     def __init__(self, coordinator, index):
         super().__init__(coordinator)

@@ -5,6 +5,8 @@ import homeassistant.helpers.config_validation as cv
 import voluptuous as vol
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.typing import ConfigType
+from homeassistant.helpers.discovery import load_platform
+
 from .const import *
 
 DOMAIN = "trentbarton"
@@ -32,6 +34,6 @@ def setup(hass: HomeAssistant, config: ConfigType) -> bool:
         CONF_NUMBUSES: config[DOMAIN][CONF_NUMBUSES],
     }
 
-    hass.helpers.discovery.load_platform("sensor", DOMAIN, {}, config)
+    load_platform("sensor", DOMAIN, {}, config)
 
     return True

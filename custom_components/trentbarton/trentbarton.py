@@ -25,7 +25,7 @@ class Bus:
         if self.data["dueIn"] == "due":
             return 0
 
-        if self.data["dueIn"][-2:] == "pm" or self.data["dueIn"][-2:] == "am":
+        if self.data["dueIn"][:-2] == "pm" or self.data["dueIn"][:-2] == "am":
             now = datetime.now()
             due = datetime.combine(
                 now.date(), datetime.strptime(self.data["dueIn"], "%I:%M %p").time()
@@ -37,7 +37,7 @@ class Bus:
         try:
             return int(self.data["dueIn"][:-4])
         except Exception:
-            # TODO: handle this properly
+            # TODO: parse this properly, its usually a time, eg. 22:45
             return -1  # self.data["dueIn"]
 
     @property
