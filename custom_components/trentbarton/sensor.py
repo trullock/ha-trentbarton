@@ -66,6 +66,7 @@ async def async_setup_platform(
     coordinator = DataUpdateCoordinator(
         hass,
         _LOGGER,
+        config_entry=None,
         name="buses",
         update_method=async_update_data,
         update_interval=timedelta(seconds=60),
@@ -73,7 +74,7 @@ async def async_setup_platform(
 
     coordinator.async_add_listener(update_entities)
 
-    await coordinator.async_config_entry_first_refresh()
+    await coordinator.async_refresh()
 
     # Deliberately dont use initial bus data so the sensors get alphabetically ordered default names - so the default card gets them set up in the right order
     for i in range(0, num_buses):
