@@ -58,7 +58,7 @@ class Bus:
         # If it's just a little bit behind now (less than 12 hours), 
         # it stays as today and returns a negative value (the recent past).
             
-        return diff.total_seconds()
+        return (int)(diff.total_seconds() // 60)
 
 
     @property
