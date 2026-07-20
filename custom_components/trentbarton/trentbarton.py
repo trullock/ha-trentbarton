@@ -27,7 +27,7 @@ class Bus:
         refers to an early morning time (e.g., evaluating 1:45am at 11:30pm).
         """
         time_str = self.data["dueIn"].strip().lower()
-        formats = ["%I:%M%p", "%H:%M"]
+        formats = ["%I:%M%p", "%I:%M %p", "%H:%M"]
         
         parsed_time = None
         for fmt in formats:
