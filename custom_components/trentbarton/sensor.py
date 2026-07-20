@@ -29,15 +29,14 @@ async def async_setup_platform(
 ) -> None:
     """Set up the sensor platform."""
 
-    serviceName = hass.data[DOMAIN][CONF_SERVICE]
-    stopid = hass.data[DOMAIN][CONF_STOPID]
-    num_buses = hass.data[DOMAIN][CONF_NUMBUSES]
-
-    our_stop = null
-
-    # We only want this platform to be set up via discovery.
     if discovery_info is None:
         return
+
+    serviceName = discovery_info[CONF_SERVICE]
+    stopid = discovery_info[CONF_STOPID]
+    num_buses = discovery_info[CONF_NUMBUSES]
+
+    our_stop = null
 
     service = await Service.get_service(serviceName)
     bus_stops = await service.get_stops()
@@ -49,8 +48,6 @@ async def async_setup_platform(
     sensorEntities = []
 
     async def async_update_data():
-        # Note: asyncio.TimeoutError and aiohttp.ClientError are already
-        # handled by the data update coordinator.
         return await our_stop.get_live_times()
 
     def update_entities():
@@ -67,18 +64,16 @@ async def async_setup_platform(
         hass,
         _LOGGER,
         config_entry=None,
-        name="buses",
+        name=f"buses_{stopid}",
         update_method=async_update_data,
         update_interval=timedelta(seconds=60),
     )
 
     coordinator.async_add_listener(update_entities)
-
     await coordinator.async_refresh()
 
-    # Deliberately dont use initial bus data so the sensors get alphabetically ordered default names - so the default card gets them set up in the right order
     for i in range(0, num_buses):
-        sensor = BusSensor(coordinator, i)
+        sensor = BusSensor(coordinator, i, stopid)
         sensorEntities.append(sensor)
 
     async_add_entities(sensorEntities)
@@ -89,10 +84,11 @@ class BusSensor(CoordinatorEntity, SensorEntity):
     _attr_icon = "mdi:bus"
     _attr_native_unit_of_measurement = "min"
 
-    def __init__(self, coordinator, index):
+    def __init__(self, coordinator, index, stopid):
         super().__init__(coordinator)
         self._data = {}
-        self.entity_id = f"trentbarton.upcoming_bus_{index}"
+        self.entity_id = f"trentbarton.{stopid}_upcoming_bus_{index}"
+        self._attr_unique_id = f"trentbarton_{stopid}_upcoming_bus_{index}"
         self._bus = null
         self._index = index
 

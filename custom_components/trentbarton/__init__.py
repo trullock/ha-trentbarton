@@ -1,4 +1,4 @@
-"""Example Load Platform integration."""
+"""Trentbarton integration - supports multiple stop configurations."""
 from __future__ import annotations
 
 import homeassistant.helpers.config_validation as cv
@@ -11,29 +11,28 @@ from .const import *
 
 DOMAIN = "trentbarton"
 
-CONFIG_SCHEMA = vol.Schema(
+STOP_SCHEMA = vol.Schema(
     {
-        DOMAIN: vol.Schema(
-            {
-                vol.Required(CONF_SERVICE): cv.string,
-                vol.Required(CONF_STOPID): cv.string,
-                vol.Required(CONF_NUMBUSES): cv.positive_int,
-            }
-        )
-    },
+        vol.Required(CONF_SERVICE): cv.string,
+        vol.Required(CONF_STOPID): cv.string,
+        vol.Required(CONF_NUMBUSES): cv.positive_int,
+    }
+)
+
+# Accept either a single mapping or a list of mappings under `trentbarton:`
+CONFIG_SCHEMA = vol.Schema(
+    {DOMAIN: vol.All(cv.ensure_list, [STOP_SCHEMA])},
     extra=vol.ALLOW_EXTRA,
 )
 
 
 def setup(hass: HomeAssistant, config: ConfigType) -> bool:
-    """Your controller/hub specific code."""
-    # Data that you want to share with your platforms
-    hass.data[DOMAIN] = {
-        CONF_SERVICE: config[DOMAIN][CONF_SERVICE],
-        CONF_STOPID: config[DOMAIN][CONF_STOPID],
-        CONF_NUMBUSES: config[DOMAIN][CONF_NUMBUSES],
-    }
+    """Set up one or more trentbarton stop configurations."""
+    hass.data[DOMAIN] = config[DOMAIN]
 
-    load_platform("sensor", DOMAIN, {}, config)
+    for stop_config in config[DOMAIN]:
+        # Pass each stop's own config as the discovery payload so the
+        # sensor platform knows which stop it's building entities for.
+        load_platform(hass, "sensor", DOMAIN, stop_config, config)
 
     return True
