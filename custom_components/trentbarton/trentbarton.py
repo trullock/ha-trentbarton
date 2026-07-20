@@ -21,24 +21,45 @@ class Bus:
 
     @property
     def due(self):
-        """Returns the time until the bus is due in minutes"""
-        if self.data["dueIn"] == "due":
-            return 0
+        """
+        Returns the time until the bus is due in minutes
+        Intelligently handles wrapping to the next day if a late-night evaluation
+        refers to an early morning time (e.g., evaluating 1:45am at 11:30pm).
+        """
+        time_str = self.data["dueIn"].strip().lower()
+        formats = ["%I:%M%p", "%H:%M"]
+        
+        parsed_time = None
+        for fmt in formats:
+            try:
+                parsed_time = datetime.strptime(time_str, fmt).time()
+                break
+            except ValueError:
+                continue
+                
+        if not parsed_time:
+            raise ValueError(f"Time string '{time_str}' did not match supported formats.")
+            
+        now = datetime.now()
+        
+        # 1. Start by assuming the target time is today
+        target_datetime = datetime.combine(date.today(), parsed_time)
+        
+        # 2. Calculate initial difference
+        diff = target_datetime - now
+        
+        # 3. Handle midnight wrap-around logic:
+        # If the target time is earlier today, but by MORE than 12 hours,
+        # it's likely an early morning time meant for tomorrow.
+        if diff.total_seconds() < 0 and abs(diff.total_seconds()) > 12 * 3600:
+            target_datetime += timedelta(days=1)
+            diff = target_datetime - now
+            
+        # If it's just a little bit behind now (less than 12 hours), 
+        # it stays as today and returns a negative value (the recent past).
+            
+        return diff.total_seconds()
 
-        if self.data["dueIn"][:-2] == "pm" or self.data["dueIn"][:-2] == "am":
-            now = datetime.now()
-            due = datetime.combine(
-                now.date(), datetime.strptime(self.data["dueIn"], "%I:%M %p").time()
-            )
-            if due < now:
-                due += timedelta(days=1)
-            return (due - now).total_seconds() // 60
-
-        try:
-            return int(self.data["dueIn"][:-4])
-        except Exception:
-            # TODO: parse this properly, its usually a time, eg. 22:45
-            return -1  # self.data["dueIn"]
 
     @property
     def time(self):
