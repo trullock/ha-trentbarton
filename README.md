@@ -8,7 +8,10 @@ Example `configuration.yaml`:
 
 ```
 trentbarton:
-  service: indigo
-  stopid: 1234
-  num_buses: 5
+  - service: indigo
+    stopid: 1234
+    num_buses: 5
+  - service: indigo
+    stopid: 4321
+    num_buses: 5
 ```
