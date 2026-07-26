@@ -2,6 +2,7 @@ from datetime import datetime, date, timedelta
 
 import aiohttp
 import json
+import re
 
 TRENT_BARTON_API = "https://www.trentbarton.co.uk/RTILiveTimings.aspx"
 
@@ -27,6 +28,16 @@ class Bus:
         refers to an early morning time (e.g., evaluating 1:45am at 11:30pm).
         """
         time_str = self.data["dueIn"].strip().lower()
+
+        # Handle "due" (bus is arriving now)
+        if time_str == "due":
+            return 0
+
+        # Handle relative formats like "2 mins", "5 mins", "1 min"
+        relative_match = re.match(r"^(\d+)\s*min(?:ute)?s?$", time_str)
+        if relative_match:
+            return int(relative_match.group(1))
+
         formats = ["%I:%M%p", "%I:%M %p", "%H:%M"]
         
         parsed_time = None
